@@ -1,7 +1,12 @@
 package core.backend.domain;
 
+import jakarta.persistence.*;
+
+@Entity
 public class SpicyScale {
-    private Integer id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="spicyscale_id")
+    private Long id;
 
     private String name;
 

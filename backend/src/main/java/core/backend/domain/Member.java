@@ -2,9 +2,16 @@ package core.backend.domain;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Entity
+@Getter @Setter
 public class Member {
-    private Integer id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="member_id")
+    private Long id;
 
     private String email;
 
@@ -12,7 +19,9 @@ public class Member {
 
     private String password;
 
-//    private String role;
+    // TODO(민우) : 회원가입할 때 spring security가 알아서 수정했었던 거 같은데 잘 모르겠음.
+//    private RoleType role;
+    private String role;
 
     private String nationality;
 
@@ -22,5 +31,9 @@ public class Member {
 
     private String photoUrl;
 
+    @OneToMany(mappedBy ="member")
     private List<Review> reviews;
+
+    @OneToMany(mappedBy ="member")
+    private List<Like> likes;
 }
