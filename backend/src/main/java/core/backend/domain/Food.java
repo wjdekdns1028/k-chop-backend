@@ -9,13 +9,14 @@ import lombok.Setter;
 @Entity
 @Getter @Setter
 public class Food {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="food_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "food_id")
     private Long id;
 
     private String name;
 
-//    @Column(columnDefinition = "TEXT") // TODO(민우) : 뭔지 찾아보기
+    //    @Column(columnDefinition = "TEXT") // TODO(민우) : 뭔지 찾아보기
     private String description;
 
     private Integer scoville;
@@ -24,12 +25,10 @@ public class Food {
 
     private String imgUrl;
 
-    @OneToMany(mappedBy = "food", cascade = CascadeType.REMOVE)
-    private List<Review> reviews;
+    @OneToMany(mappedBy = "food")
+    private List<Review> reviews = new ArrayList<>();;
+    // Null Pointer Exception 방지를 위해 초기화
+    @OneToMany(mappedBy = "food") // cascade = CascadeType.REMOVE
+    private List<Heart> hearts = new ArrayList<>();;
 
-    @OneToMany(mappedBy = "food", cascade = CascadeType.REMOVE)
-    private List<Like> likes;
-
-    @Version
-    private Long version;
 }
