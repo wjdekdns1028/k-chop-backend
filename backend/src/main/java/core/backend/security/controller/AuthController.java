@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import core.backend.domain.Member;
-import core.backend.security.repository.MemberRepository;
+import core.backend.repository.MemberRepository;
 
 // 인증(회원가입, 로그인, 로그아웃) API 컨트롤러
 @RestController

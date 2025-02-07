@@ -1,6 +1,6 @@
 package core.backend.security.service;
 
-import core.backend.security.repository.MemberRepository;
+import core.backend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
