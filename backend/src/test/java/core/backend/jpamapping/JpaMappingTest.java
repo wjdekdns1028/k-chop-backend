@@ -5,9 +5,6 @@ import core.backend.domain.Like;
 import core.backend.domain.Member;
 import core.backend.repository.FoodRepository;
 import core.backend.repository.LikeRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import org.hibernate.validator.internal.constraintvalidators.bv.time.pastorpresent.PastOrPresentValidatorForCalendar;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,21 +20,14 @@ public class JpaMappingTest {
     @Autowired FoodRepository foodRepository;
     @Autowired LikeRepository likeRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Transactional
-    public Food updateFood(Food detachedFood) {
-        return entityManager.merge(detachedFood); // 영속화 후 저장
-    }
-
     @Test
     @DisplayName("test")
     void test() throws Exception {
         //given
         Food food = new Food();
+        food.setId(1L);
         food.setName("Test Food");
-        food = foodRepository.save(food);
+        foodRepository.save(food);
 
         for (int i = 0; i < 1; i++) {
             Like like = new Like();
@@ -52,6 +42,6 @@ public class JpaMappingTest {
         // then
         assertNotNull(food);
         assertEquals(1, likes.size());
-//        assertTrue(likes.stream().allMatch(like -> like.getFood().equals(food)));
+        assertTrue(likes.stream().allMatch(like -> like.getFood().equals(food)));
     }
 }
