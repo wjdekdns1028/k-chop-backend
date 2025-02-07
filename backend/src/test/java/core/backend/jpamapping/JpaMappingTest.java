@@ -1,10 +1,12 @@
 package core.backend.jpamapping;
 
 import core.backend.domain.Food;
-import core.backend.domain.Like;
+import core.backend.domain.Heart;
 import core.backend.domain.Member;
 import core.backend.repository.FoodRepository;
-import core.backend.repository.LikeRepository;
+import core.backend.repository.HeartRepository;
+import core.backend.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import org.hibernate.validator.internal.constraintvalidators.bv.time.pastorpresent.PastOrPresentValidatorForCalendar;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,32 +18,37 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
 public class JpaMappingTest {
     @Autowired FoodRepository foodRepository;
-    @Autowired LikeRepository likeRepository;
+    @Autowired HeartRepository heartRepository;
+    @Autowired MemberRepository memberRepository;
 
     @Test
     @DisplayName("test")
     void test() throws Exception {
-        //given
+        //given // TODO : member객체가 없어서 에러
         Food food = new Food();
-        food.setId(1L);
         food.setName("Test Food");
         foodRepository.save(food);
+        Member member = new Member();
+        memberRepository.save(member);
 
-        for (int i = 0; i < 1; i++) {
-            Like like = new Like();
-            like.setFood(food);
-            System.out.println("System.identityHashCode(like) = " + System.identityHashCode(like));
-            likeRepository.save(like);
+        for (int i = 0; i < 3; i++) {
+            Heart heart = new Heart();
+            heart.setFood(food);
+            heart.setMember(member);
+            food.getHearts().add(heart);
+            System.out.println("System.identityHashCode(Heart) = " + System.identityHashCode(heart));
+            heartRepository.save(heart);
         }
-
+        final Food updatedfood = foodRepository.findById(food.getId()).orElseThrow();
         // when
-        List<Like> likes = food.getLikes();
+        List<Heart> hearts = updatedfood.getHearts();
 
         // then
         assertNotNull(food);
-        assertEquals(1, likes.size());
-        assertTrue(likes.stream().allMatch(like -> like.getFood().equals(food)));
+        assertEquals(3, hearts.size());
+        assertTrue(hearts.stream().allMatch(heart -> heart.getFood().equals(updatedfood)));
     }
 }

@@ -19,7 +19,6 @@ public class Member {
 
     private String password;
 
-    // TODO(민우) : 회원가입할 때 spring security가 알아서 수정했었던 거 같은데 잘 모르겠음.
 //    private RoleType role;
     private String role;
 
@@ -32,8 +31,8 @@ public class Member {
     private String photoUrl;
 
     @OneToMany(mappedBy ="member")
-    private List<Review> reviews;
-
+    private List<Review> reviews = new ArrayList<>();
+    // Null Pointer Exception 방지를 위해 초기화
     @OneToMany(mappedBy ="member")
-    private List<Like> likes;
+    private List<Heart> hearts = new ArrayList<>();
 }
