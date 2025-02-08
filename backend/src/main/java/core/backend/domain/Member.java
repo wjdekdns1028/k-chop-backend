@@ -1,11 +1,14 @@
 package core.backend.domain;
 
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Getter
@@ -38,20 +41,17 @@ public class Member {
     private String nationality;
 
     @Column(updatable = false) // 회원가입 시 자동 생성(수정 불가)
+    @CreationTimestamp // 쿼리 Insert 시 현재시간 저장
     private LocalDateTime createDate;
 
     private String badge;
     private String photoUrl;
 
-    //cascade = CascadeType.ALL, orphanRemoval = true -> 회원 삭제 시 리뷰와 좋아요 함께 삭제되는 코드
-    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews = new ArrayList<>();
+/*    //cascade = CascadeType.ALL, orphanRemoval = true -> 회원 삭제 시 리뷰와 좋아요 함께 삭제되는 코드
+//    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Review> reviews = new ArrayList<>();
     // Null Pointer Exception 방지를 위해 초기화
-    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Heart> hearts = new ArrayList<>();
-
-    @PrePersist
-    protected void onCreate(){
-        this.createDate = LocalDateTime.now();
-    }
+//    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Heart> hearts = new ArrayList<>();
+*/
 }
