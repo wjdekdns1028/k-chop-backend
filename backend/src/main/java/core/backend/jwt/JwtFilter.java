@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -26,6 +27,14 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException{
 
+        String requestURI = request.getRequestURI();
+
+        //회원가입, 로그인 요청은 필터를 거치지 않도록
+        if(requestURI.startsWith("/api/auth/")){
+            chain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         // authorization헤더가 없거나 bearer가 없으면 필터 통과
@@ -41,11 +50,14 @@ public class JwtFilter extends OncePerRequestFilter {
         //jwt토큰이 유효한 경우 사용자 정보를 가져와 securitycontext에 저장
         if(jwtUtil.validateToken(token)){
             String email = jwtUtil.extractEmail(token);
+            
+            //사용자 정보 가져오기
             UserDetails userDetails = memberDetailService.loadUserByUsername(email);
 
             //spring security에서 인식할 수 있는 authentication객체 생성
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             //securitycontext에 인증 정보 저장!!
             SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -28,13 +28,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) //CSRF 비활성화 (REST API에서는 필요 없음)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ✅ 세션 비활성화 (JWT 인증 사용)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //세션 비활성화 (JWT 인증 사용)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() //로그인, 회원가입은 인증 없이 접근 가능
                         .requestMatchers("/api/user/me").authenticated() //인증된 사용자만 접근 가능
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
-                .exceptionHandling(exciption -> exciption
+                .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setContentType("application/json; charset=UTF-8");
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
