@@ -4,6 +4,7 @@ import java.util.*;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
 import core.backend.domain.Review;
+import core.backend.dto.review.ReviewDto;
 import core.backend.dto.review.ReviewFormRequest;
 import core.backend.dto.review.ReviewUpdateRequest;
 import core.backend.service.FoodService;
@@ -22,9 +23,18 @@ public class ReviewController {
     private final FoodService foodService;
     private final MemberService memberService;
 
+    //TODO(민우) : service단에서 에러발생->controller단에서 처리 혹은 메세지 어떻게?
+
+//    /users/{userId}/reviews // TODO(민우) :
+    @GetMapping("/{userId}")
+    public Map<String, List<ReviewDto>> getReviews(@PathVariable Long userId) {
+        List<ReviewDto> reviews = reviewService.getReviews(userId);
+        return Map.of("reviews", reviews);
+    }
+
     @PostMapping
     public Map<String, String> addReview(@Valid @RequestBody ReviewFormRequest request, BindingResult bindingResult) {
-        Food food = foodService.getFood(request.getFoodId()); //TODO: service단에서 에러발생->controller단에서 처리 혹은 메세지?
+        Food food = foodService.getFood(request.getFoodId());
         Member member = memberService.getUser(request.getUserId());
         reviewService.createReview(food, member);
         return Map.of("message", "후기 작성 완료");
