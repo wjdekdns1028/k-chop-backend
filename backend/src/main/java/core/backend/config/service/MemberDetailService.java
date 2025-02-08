@@ -1,4 +1,4 @@
-package core.backend.security.service;
+package core.backend.config.service;
 
 import core.backend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import core.backend.domain.Member;
 import java.util.Optional;
+
 
 // spring security에서 사용자 인증을 위해 사용되는 서비스
 @Service // spring bean으로 등록
@@ -27,10 +28,13 @@ public class MemberDetailService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found with email: " + email);
         }
 
+        //spring security에서 자동으로 "ROLe_"을 추가하므로 직접 붙이지 말기
+        String role = member.get().getRole().name();
+
         return User.builder()
                 .username(member.get().getEmail())
                 .password(member.get().getPassword())
-                .roles(member.get().getRole().name())
+                .roles(role)
                 .build();
     }
 }
