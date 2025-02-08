@@ -28,7 +28,7 @@ public class ReviewController {
 //    /users/{userId}/reviews // TODO(민우) :
     @GetMapping("/{userId}")
     public Map<String, List<ReviewDto>> getReviews(@PathVariable Long userId) {
-        List<ReviewDto> reviews = reviewService.getReviews(userId);
+        List<ReviewDto> reviews = reviewService.getReviewsByUserId(userId);
         return Map.of("reviews", reviews);
     }
 
@@ -37,6 +37,10 @@ public class ReviewController {
         Food food = foodService.getFood(request.getFoodId());
         Member member = memberService.getUser(request.getUserId());
         reviewService.createReview(food, member);
+
+        int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
+        memberService.updateBadge(member, reviewCount);
+
         return Map.of("message", "후기 작성 완료");
     }
 
@@ -49,6 +53,12 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public Map<String, String> deleteReview(@PathVariable Long reviewId) {
         reviewService.deleteReview(reviewId);
+
+        Review review = reviewService.getReviewByReviewId(reviewId);
+        Member member = review.getMember();
+        int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
+        memberService.updateBadge(member, reviewCount);
+
         return Map.of("message", "후기 삭제 완료");
     }
 }

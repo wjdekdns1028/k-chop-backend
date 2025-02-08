@@ -17,7 +17,12 @@ import org.springframework.stereotype.Service;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
 
-    public List<ReviewDto> getReviews(Long userId) {
+    public Review getReviewByReviewId(Long reviewId) {
+        reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("리뷰가 존재하지 않습니다."));
+    }
+
+    public List<ReviewDto> getReviewsByUserId(Long userId) {
         List<Review> reviewList = reviewRepository.findAllById(List.of(userId));
         if (reviewList.isEmpty()) {
             throw new IllegalArgumentException("해당 사용자의 후기가 존재하지 않습니다.");
