@@ -1,7 +1,8 @@
-package core.backend.security.config;
+package core.backend.config;
 
-import core.backend.security.jwt.JwtFilter;
-import core.backend.security.service.MemberDetailService;
+import core.backend.jwt.JwtFilter;
+import core.backend.config.service.MemberDetailService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 
 // Spring Security 설정 클래스
 @Configuration
@@ -23,17 +25,27 @@ public class SecurityConfig {
     
     // Spring Security 설정(보안 필터 체인 구성)
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF 보안 비활성화(주로 REST API에서는 비활성화)
+                .csrf(csrf -> csrf.disable()) //CSRF 비활성화 (REST API에서는 필요 없음)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // ✅ 세션 비활성화 (JWT 인증 사용)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // 회원가입, 로그인 API는 인증 없이 접근 가능
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요
+                        .requestMatchers("/api/auth/**").permitAll() //로그인, 회원가입은 인증 없이 접근 가능
+                        .requestMatchers("/api/user/me").authenticated() //인증된 사용자만 접근 가능
+                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
-                .userDetailsService(memberDetailService)
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 적용
+                .exceptionHandling(exciption -> exciption
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json; charset=UTF-8");
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write("{\"error\": \"Access Denied\", \"message\": \"로그인이 필요합니다.\"}");
+                        })
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); //JWT 필터 적용
+
         return http.build();
     }
+
 
     // 비밀번호 암호화를 위한 passwordEncoder설정
     @Bean

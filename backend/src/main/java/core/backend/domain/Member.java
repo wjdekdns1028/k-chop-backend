@@ -2,6 +2,8 @@ package core.backend.domain;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +26,7 @@ public class Member {
     private String name;
 
     @Column(nullable = false) // 필수값 설정
+    @JsonIgnore // api응답에서 비밀번호 필드 제외
     private String password;
 
 //    private RoleType role;

@@ -1,7 +1,7 @@
-package core.backend.security.controller;
+package core.backend.controller;
 
 import core.backend.domain.RoleType;
-import core.backend.security.jwt.JwtUtil;
+import core.backend.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +32,7 @@ public class AuthController {
 
         //비밀번호 암호화 후 회원 저장
         member.setPassword(passwordEncoder.encode(member.getPassword()));
-        member.setRole(RoleType.ROLE_USER); //기본 권한 설정
+        member.setRole(RoleType.USER); //기본 권한 설정
         memberRepository.save(member);
 
         return "회원가입 성공";

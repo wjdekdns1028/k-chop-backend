@@ -1,11 +1,13 @@
-package core.backend.security.jwt;
+package core.backend.jwt;
 
-import core.backend.security.service.MemberDetailService;
+import core.backend.config.service.MemberDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,17 +25,33 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException{
+
         String authHeader = request.getHeader("Authorization");
+
+        // authorization헤더가 없거나 bearer가 없으면 필터 통과
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
+            System.out.println("JWT 토큰이 없음 또는 잘못된 형식");
             chain.doFilter(request, response);
             return;
         }
 
+        //bearer이후의 jwt토큰 값 가져옴
         String token = authHeader.substring(7);
+
+        //jwt토큰이 유효한 경우 사용자 정보를 가져와 securitycontext에 저장
         if(jwtUtil.validateToken(token)){
             String email = jwtUtil.extractEmail(token);
             UserDetails userDetails = memberDetailService.loadUserByUsername(email);
-            request.setAttribute("userDetails", userDetails);
+
+            //spring security에서 인식할 수 있는 authentication객체 생성
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            //securitycontext에 인증 정보 저장!!
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println("JWT 인증 성공: " + email);
+        } else {
+            System.out.println("JWT 토큰 검증 실패");
         }
         chain.doFilter(request, response);
     }
