@@ -1,4 +1,4 @@
-package core.backend.dto;
+package core.backend.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

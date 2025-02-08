@@ -4,17 +4,15 @@ import java.util.*;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
 import core.backend.domain.Review;
-import core.backend.dto.ReviewFormRequest;
+import core.backend.dto.review.ReviewFormRequest;
+import core.backend.dto.review.ReviewUpdateRequest;
 import core.backend.service.FoodService;
 import core.backend.service.MemberService;
 import core.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,6 +28,12 @@ public class ReviewController {
         Member member = memberService.getUser(request.getUserId());
         reviewService.createReview(food, member);
         return Map.of("message", "후기 작성 완료");
+    }
+
+    @PostMapping("/{reviewId}")
+    public Map<String, String> updateReview(@PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, BindingResult bindingResult) {
+        reviewService.updateReview(reviewId, request.getContent());
+        return Map.of("message", "후기 수정 완료");
     }
 
 }
