@@ -1,5 +1,6 @@
 package core.backend.controller;
 
+import java.security.Principal;
 import java.util.*;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
@@ -12,8 +13,10 @@ import core.backend.service.MemberService;
 import core.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,9 +36,13 @@ public class ReviewController {
     }
 
     @PostMapping
-    public Map<String, String> addReview(@Valid @RequestBody ReviewFormRequest request, BindingResult bindingResult) {
-        Food food = foodService.getFood(request.getFoodId());
+    public Map<String, String> addReview(@Valid @RequestBody ReviewFormRequest request,
+                                         BindingResult bindingResult, Principal principal) {
         Member member = memberService.getUser(request.getUserId());
+        if (!member.getName().equals(principal.getName()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성 권한이 없습니다.");
+
+        Food food = foodService.getFood(request.getFoodId());
         reviewService.createReview(food, member);
 
         int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
@@ -45,17 +52,28 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public Map<String, String> updateReview(@PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, BindingResult bindingResult) {
+    public Map<String, String> updateReview(@PathVariable Long reviewId,
+                                            @Valid @RequestBody ReviewUpdateRequest request,
+                                            BindingResult bindingResult,
+                                            Principal principal) {
+        Review review = reviewService.getReviewByReviewId(reviewId);
+        Member member = review.getMember();
+        if (!member.getName().equals(principal.getName()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
+
         reviewService.updateReview(reviewId, request.getContent());
         return Map.of("message", "후기 수정 완료");
     }
 
     @DeleteMapping("/{reviewId}")
-    public Map<String, String> deleteReview(@PathVariable Long reviewId) {
+    public Map<String, String> deleteReview(@PathVariable Long reviewId, Principal principal) {
         reviewService.deleteReview(reviewId);
 
         Review review = reviewService.getReviewByReviewId(reviewId);
         Member member = review.getMember();
+        if (!member.getName().equals(principal.getName()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
+
         int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
         memberService.updateBadge(member, reviewCount);
 

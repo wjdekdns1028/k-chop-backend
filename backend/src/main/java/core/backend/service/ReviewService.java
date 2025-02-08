@@ -1,8 +1,6 @@
 package core.backend.service;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
@@ -18,7 +16,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
 
     public Review getReviewByReviewId(Long reviewId) {
-        reviewRepository.findById(reviewId)
+        return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰가 존재하지 않습니다."));
     }
 
