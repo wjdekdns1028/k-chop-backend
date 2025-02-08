@@ -1,5 +1,6 @@
 package core.backend.controller;
 
+import core.backend.domain.BadgeType;
 import core.backend.domain.RoleType;
 import core.backend.jwt.JwtUtil;
 import core.backend.dto.MemberSignupRequest;
@@ -42,6 +43,7 @@ public class AuthController {
                 .name(request.getName())
                 .nationality(request.getNationality())
                 .role(RoleType.USER)
+                .badge(BadgeType.LEVEL_ZERO)
                 .build();
 
         memberRepository.save(member);

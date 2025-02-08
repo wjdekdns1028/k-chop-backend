@@ -44,7 +44,8 @@ public class Member {
     @CreationTimestamp // 쿼리 Insert 시 현재시간 저장
     private LocalDateTime createDate;
 
-    private String badge;
+    @Enumerated(EnumType.STRING)
+    private BadgeType badge;
     private String photoUrl;
 
 /*    //cascade = CascadeType.ALL, orphanRemoval = true -> 회원 삭제 시 리뷰와 좋아요 함께 삭제되는 코드
