@@ -12,21 +12,26 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Food {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "food_id")
     private Long id;
 
-    private String name;
+    @Column(nullable = false, unique = true)
+    private String name; // 음식 이름
 
     @Lob // 필드 타입 String일 시 CLOB으로 매핑
     @Column(columnDefinition = "LONGTEXT")
     private String description;
 
+    @Column(nullable = false)
     private Integer scoville;
 
-    private String sort;
+    @Column(nullable = false)
+    private String category; // 음식 카테고리 (sort->category 수정)
 
+    @Column(nullable = false)
     private String imgUrl;
 /*
 //    @OneToMany(mappedBy ="food", cascade = CascadeType.ALL, orphanRemoval = true)
