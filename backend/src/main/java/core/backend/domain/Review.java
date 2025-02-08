@@ -2,7 +2,6 @@ package core.backend.domain;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -17,13 +16,12 @@ public class Review {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="food_id")
-    @NonNull
+    //    @JoinColumn(name="food_id")
+
     private Food food;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="member_id")
-    @NotNull
+//    @JoinColumn(name="member_id")
     private Member member;
 
     private String content;

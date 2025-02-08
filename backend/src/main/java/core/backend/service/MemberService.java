@@ -1,8 +1,8 @@
 package core.backend.service;
 
-import java.util.Optional;
 import core.backend.domain.Member;
 import core.backend.repository.MemberRepository;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,15 +11,8 @@ import org.springframework.stereotype.Service;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-//    userId, name, nationality, profile_photo
-//    public
-
-    public Member getMember(Long id){
-        Optional<Member> member = memberRepository.findById(id);
-        if (member.isPresent()) {
-            return member.get();
-        } else {
-            throw new IllegalArgumentException("Member not found by id: " + id);
-        }
+    public Member getUser(Long userId) {
+        return memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
     }
 }

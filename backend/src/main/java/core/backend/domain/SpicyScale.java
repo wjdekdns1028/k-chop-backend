@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SpicyScale {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="spicyscale_id")
