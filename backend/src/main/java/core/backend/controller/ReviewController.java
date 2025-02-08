@@ -30,10 +30,15 @@ public class ReviewController {
         return Map.of("message", "후기 작성 완료");
     }
 
-    @PostMapping("/{reviewId}")
+    @PutMapping("/{reviewId}")
     public Map<String, String> updateReview(@PathVariable Long reviewId, @Valid @RequestBody ReviewUpdateRequest request, BindingResult bindingResult) {
         reviewService.updateReview(reviewId, request.getContent());
         return Map.of("message", "후기 수정 완료");
     }
 
+    @DeleteMapping("/{reviewId}")
+    public Map<String, String> deleteReview(@PathVariable Long reviewId) {
+        reviewService.deleteReview(reviewId);
+        return Map.of("message", "후기 삭제 완료");
+    }
 }

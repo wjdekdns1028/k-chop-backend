@@ -1,5 +1,6 @@
 package core.backend.service;
 
+import java.util.Optional;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
 import core.backend.domain.Review;
@@ -32,5 +33,13 @@ public class ReviewService {
                     review.setContent(content); // Dirty Checking by JPA
                     return review;
                 }).orElseThrow(() -> new IllegalArgumentException("리뷰가 존재하지 않습니다."));
+    }
+
+    public void deleteReview(Long reviewId) {
+        reviewRepository.findById(reviewId)
+                .ifPresentOrElse(
+                        review -> reviewRepository.delete(review),
+                        () -> { throw new IllegalArgumentException("리뷰가 존재하지 않습니다."); }
+                );
     }
 }
