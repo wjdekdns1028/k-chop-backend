@@ -2,15 +2,20 @@ package core.backend.controller;
 
 import core.backend.domain.RoleType;
 import core.backend.jwt.JwtUtil;
+import core.backend.dto.MemberSignupRequest;
+import core.backend.dto.MemberLoginRequest;
+import core.backend.repository.MemberRepository;
+import core.backend.domain.Member;
+import core.backend.exception.CustomException;
+import core.backend.exception.ErrorCode;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import core.backend.domain.Member;
-import core.backend.repository.MemberRepository;
+import java.util.Optional;
+
 
 // 인증(회원가입, 로그인, 로그아웃) API 컨트롤러
 @RestController
@@ -24,15 +29,21 @@ public class AuthController {
 
     //회원가입 API
     @PostMapping("/signup")
-    public String signup(@RequestBody Member member) {
-        // 이미 존재하는 사용자 확인
-        if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+    public String signup(@Valid @RequestBody MemberSignupRequest request){
+        //이미 존재하는 사용자 확인
+        if(memberRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new CustomException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
-        //비밀번호 암호화 후 회원 저장
-        member.setPassword(passwordEncoder.encode(member.getPassword()));
-        member.setRole(RoleType.USER); //기본 권한 설정
+        //새로운 사용자 객체 생성, 저장
+        Member member = Member.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .nationality(request.getNationality())
+                .role(RoleType.USER)
+                .build();
+
         memberRepository.save(member);
 
         return "회원가입 성공";
@@ -40,14 +51,17 @@ public class AuthController {
 
     //로그인 API(JWT 발급)
     @PostMapping("/login")
-    public String login(@RequestBody Member member){
-        Member foundMember = memberRepository.findByEmail(member.getEmail())
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+    public String login(@Valid @RequestBody MemberLoginRequest request){
+        //이메일로 사용자 조회
+        Member foundMember = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if(!passwordEncoder.matches(member.getPassword(), foundMember.getPassword())){
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        //비밀번호 확인
+        if(!passwordEncoder.matches(request.getPassword(), foundMember.getPassword())){
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
+        //jwt 토큰 발급 후 반환
         return jwtUtil.generateToken(foundMember.getEmail(), foundMember.getRole().name());
     }
 
