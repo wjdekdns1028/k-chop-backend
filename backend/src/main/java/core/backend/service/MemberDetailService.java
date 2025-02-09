@@ -1,4 +1,4 @@
-package core.backend.config.service;
+package core.backend.service;
 
 import core.backend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
