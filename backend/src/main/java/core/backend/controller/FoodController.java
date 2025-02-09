@@ -17,7 +17,6 @@ import java.util.List;
 public class FoodController {
 
     private final FoodService foodService;
-    private final FoodRepository foodRepository;
 
     //음식 csv 파일 업로드, db저장
     @PostMapping("/upload")
@@ -26,25 +25,27 @@ public class FoodController {
         return ResponseEntity.ok("CSV 데이터가 성공적으로 저장되었습니다.");
     }
 
-    //음식 리스트 조회(전체 조회)
+    //전체 음식 리스트 조회(카테고리별 필터링, 정렬)
     @GetMapping
-    public ResponseEntity<List<Food>> getAllFoods(){
-        List<Food> foods = foodRepository.findAll();
+    public ResponseEntity<List<Food>> getFoods(
+        @RequestParam(name = "category", required = false) String category,
+        @RequestParam(name = "sort", required = false, defaultValue = "new") String sort){
+
+        List<Food> foods = foodService.getFoods(category, sort);
         return ResponseEntity.ok(foods);
     }
 
     //음식 검색(이름, 카테고리)
     @GetMapping("/search")
-    public ResponseEntity<List<Food>> searchFoods(@RequestParam String query){
-        List<Food> searchResults = foodRepository.findByNameContainingIgnoreCaseOrCategoryContainingIgnoreCase(query, query);
+    public ResponseEntity<List<Food>> searchFoods(@RequestParam(name = "query") String query){
+        List<Food> searchResults = foodService.searchFoods(query);
         return ResponseEntity.ok(searchResults);
     }
 
     //음식 상세 조회
     @GetMapping("/{foodId}")
-    public ResponseEntity<Food> getFoodDetail(@PathVariable Long foodId){
-        Food food = foodRepository.findById(foodId)
-                .orElseThrow(() -> new RuntimeException("음식을 찾을 수 없습니다."));
+    public ResponseEntity<Food> getFoodDetail(@PathVariable("foodId") Long foodId){
+        Food food = foodService.getFoodDetail(foodId);
         return ResponseEntity.ok(food);
     }
 }

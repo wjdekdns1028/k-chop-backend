@@ -13,10 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,12 +42,13 @@ public class FoodService {
 
                         String name = data[1].trim();
                         Optional<Food> existingFood = foodRepository.findByName(name);
-
+                        
                         if(existingFood.isPresent()){
                             System.out.println("이미 존재하는 음식 건너뜀: " + name);
                             return null;
                         }
 
+                        //scoville 값이 유효한 숫자인지 검사
                         Integer scoville = null;
                         try {
                             if(!data[3].trim().isEmpty()){
@@ -60,6 +58,7 @@ public class FoodService {
                             System.out.println("잘못된 scoville 값: " + data[3].trim());
                         }
 
+                        //Food 객체 생성
                         Food food = Food.builder()
                                 .category(data[0].trim())
                                 .name(data[1].trim())
@@ -89,8 +88,31 @@ public class FoodService {
     }
 
     //특정 음식 상세 조회
-    public Food getFood(Long foodId) {
+    public Food getFoodDetail(Long foodId) {
         return foodRepository.findById(foodId)
                 .orElseThrow(() -> new IllegalArgumentException("음식이 존재하지 않습니다."));
+    }
+
+    //카테고리별 음식 리스트 조회, 정렬 기능(최신, 인기순)
+    public List<Food> getFoods(String category, String sort){
+        List<Food> foods = (category != null) ? foodRepository.findByCategory(category) : foodRepository.findAll();
+
+       //좋아요 기능 개발 전이라 기본 정렬을 최신순으로 설정
+        foods.sort(Comparator.comparing(Food::getId).reversed());
+
+        // 좋아요 기능 개발 후에 적용할 코드 (현재는 주석 처리)
+//        if ("popular".equalsIgnoreCase(sort)) {
+//            foods.sort(Comparator.comparingInt(food -> food.getHearts().size()));
+//            Collections.reverse(foods); // 내림차순 정렬 (좋아요 개수 기준)
+//        } else {
+//            foods.sort(Comparator.comparing(Food::getId).reversed()); // 최신순 정렬 (ID 기준 내림차순)
+//        }
+
+        return foods;
+    }
+
+    //음식 검색(이름 또는 카테고리)
+    public List<Food> searchFoods(String query){
+        return foodRepository.findByNameContainingIgnoreCaseOrCategoryContainingIgnoreCase(query, query);
     }
 }

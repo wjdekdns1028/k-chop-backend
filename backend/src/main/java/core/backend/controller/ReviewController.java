@@ -42,7 +42,7 @@ public class ReviewController {
         if (!member.getName().equals(principal.getName()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "작성 권한이 없습니다.");
 
-        Food food = foodService.getFood(request.getFoodId());
+        Food food = foodService.getFoodDetail(request.getFoodId());
         reviewService.createReview(food, member);
 
         int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
