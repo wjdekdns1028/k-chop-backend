@@ -1,6 +1,6 @@
 package core.backend.jwt;
 
-import core.backend.config.service.MemberDetailService;
+import core.backend.service.MemberDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

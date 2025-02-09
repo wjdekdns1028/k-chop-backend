@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class Food {
 
     @Id
@@ -19,13 +20,15 @@ public class Food {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name; // 음식 이름
+    private String name; // 음식 이름 (한글명)
+
+    @Column(nullable = false, unique = true)
+    private String englishName; // 영어 이름
 
     @Lob // 필드 타입 String일 시 CLOB으로 매핑
     @Column(columnDefinition = "LONGTEXT")
     private String description;
 
-    @Column(nullable = false)
     private Integer scoville;
 
     @Column(nullable = false)
