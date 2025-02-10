@@ -2,9 +2,9 @@ package core.backend.service;
 
 import core.backend.domain.BadgeType;
 import core.backend.domain.Member;
+import core.backend.exception.CustomException;
+import core.backend.exception.ErrorCode;
 import core.backend.repository.MemberRepository;
-import core.backend.repository.ReviewRepository;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,23 +17,23 @@ public class MemberService {
 
     public Member getUser(Long userId) {
         return memberRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     public void updateBadge(Member member, int reviewCount) {
         BadgeType badge;
         switch (reviewCount / 5) {
             case 0:
-                badge = BadgeType.LEVEL_ONE;
+                badge = BadgeType.LEVEL_ZERO;
                 break;
             case 1:
-                badge = BadgeType.LEVEL_TWO;
+                badge = BadgeType.LEVEL_ONE;
                 break;
             case 2:
-                badge = BadgeType.LEVEL_THREE;
+                badge = BadgeType.LEVEL_TWO;
                 break;
             default:
-                badge = BadgeType.LEVEL_FOUR;
+                badge = BadgeType.LEVEL_THREE;
         }
         member.setBadge(badge);
         memberRepository.save(member);

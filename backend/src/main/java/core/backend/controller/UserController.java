@@ -50,4 +50,6 @@ public class UserController {
         response.put("message", "프로필 수정 완료");
         return response;
     }
+
+    
 }

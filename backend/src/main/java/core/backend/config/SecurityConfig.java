@@ -14,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
 // Spring Security 설정 클래스
 @Configuration

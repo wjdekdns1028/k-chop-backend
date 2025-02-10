@@ -1,13 +1,12 @@
 package core.backend.service;
 
 import core.backend.domain.Food;
+import core.backend.exception.CustomException;
+import core.backend.exception.ErrorCode;
 import core.backend.repository.FoodRepository;
-import core.backend.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -90,7 +89,7 @@ public class FoodService {
     //특정 음식 상세 조회
     public Food getFoodDetail(Long foodId) {
         return foodRepository.findById(foodId)
-                .orElseThrow(() -> new IllegalArgumentException("음식이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.FOOD_NOT_FOUND));
     }
 
     //카테고리별 음식 리스트 조회, 정렬 기능(최신, 인기순)
