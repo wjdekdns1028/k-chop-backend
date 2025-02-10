@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 public class HeartService {
     private final HeartRepository heartRepository;
 
-    public List<Heart> getHeartsByUser(Long userId) {
-        return heartRepository.findAllByMemberId(userId);
+    public List<Heart> getHeartsByUser(Member member) {
+        return heartRepository.findAllByMember(member);
     }
 
 
@@ -31,5 +31,9 @@ public class HeartService {
 
     public void deleteUser(Member member, Food food) {
         heartRepository.deleteByFoodAndMember(food, member);
+    }
+
+    public List<Heart> getHeartsByFood(Food food) {
+        return heartRepository.findAllByFood(food);
     }
 }

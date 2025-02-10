@@ -30,12 +30,19 @@ public class HeartController {
 
     @GetMapping("/users/likes/{userId}")
     public List<FoodDto> getFoods(@PathVariable("userId") Long userId) {
-        List<Heart> hearts = heartService.getHeartsByUser(userId);
+        Member member = memberService.getUser(userId);
+        List<Heart> hearts = heartService.getHeartsByUser(member);
         List<Food> foods = hearts.stream().map(Heart::getFood).toList();
         return foods.stream().map(FoodDto::toDTO).toList();
     }
 
-    // TODO : 조회 자유롭게 할 것들 정리
+    @GetMapping("/heart/{foodId}")
+    public int getSizeOfHearts(@PathVariable("foodId") Long foodId){
+        Food food = foodService.getFoodDetail(foodId);
+        return heartService.getHeartsByFood(food).size();
+    }
+
+
     @GetMapping("/users/badge/{userId}")
     public Map<String, String> getBadge(@PathVariable("userId") Long userId) {
         Member member = memberService.getUser(userId);

@@ -11,7 +11,9 @@ import org.springframework.stereotype.Repository;
 public interface HeartRepository extends JpaRepository<Heart, Long> {
     boolean existsByFoodAndMember(Food food, Member member);
 
-    List<Heart> findAllByMemberId(Long userId);
-
     void deleteByFoodAndMember(Food food, Member member);
+
+    List<Heart> findAllByFood(Food food);
+
+    List<Heart> findAllByMember(Member member);
 }
