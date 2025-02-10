@@ -6,8 +6,10 @@ import core.backend.repository.MemberRepository;
 import core.backend.repository.ReviewRepository;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -21,18 +23,21 @@ public class MemberService {
     public void updateBadge(Member member, int reviewCount) {
         BadgeType badge;
         switch (reviewCount / 5) {
-            case 1:
+            case 0:
                 badge = BadgeType.LEVEL_ONE;
                 break;
-            case 2:
+            case 1:
                 badge = BadgeType.LEVEL_TWO;
                 break;
-            case 3:
+            case 2:
                 badge = BadgeType.LEVEL_THREE;
                 break;
             default:
                 badge = BadgeType.LEVEL_FOUR;
         }
-        member.setBadge(badge); // JPA - Dirty Checking
+        member.setBadge(badge);
+        memberRepository.save(member);
+        if (reviewCount % 5 == 0)
+            log.info(String.format("%s의 배지 : %s (작성 글 개수 :%s)", member.getName(), member.getBadge(), reviewCount));
     }
 }
