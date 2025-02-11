@@ -32,7 +32,6 @@ public class Member {
     @JsonIgnore // api응답에서 비밀번호 필드 제외
     private String password;
 
-//    private RoleType role;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoleType role;
@@ -46,13 +45,6 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     private BadgeType badge;
-    private String photoUrl;
 
-/*    //cascade = CascadeType.ALL, orphanRemoval = true -> 회원 삭제 시 리뷰와 좋아요 함께 삭제되는 코드
-//    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Review> reviews = new ArrayList<>();
-    // Null Pointer Exception 방지를 위해 초기화
-//    @OneToMany(mappedBy ="member", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Heart> hearts = new ArrayList<>();
-*/
+    private String photoUrl;
 }

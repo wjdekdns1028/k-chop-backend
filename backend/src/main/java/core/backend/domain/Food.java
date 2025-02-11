@@ -2,6 +2,7 @@ package core.backend.domain;
 
 import java.util.*;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -29,6 +30,7 @@ public class Food {
     @Column(columnDefinition = "LONGTEXT")
     private String description;
 
+    @Min(0)
     private Integer scoville;
 
     @Column(nullable = false)
@@ -36,12 +38,4 @@ public class Food {
 
     @Column(nullable = false)
     private String imgUrl;
-/*
-//    @OneToMany(mappedBy ="food", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Review> reviews = new ArrayList<>();;
-    // Null Pointer Exception 방지를 위해 초기화
-//    @OneToMany(mappedBy = "food") // cascade = CascadeType.REMOVE
-//    @OneToMany(mappedBy ="food", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Heart> hearts = new ArrayList<>();;
-*/
 }

@@ -14,11 +14,11 @@ public class Heart {
     @Column(name="heart_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="food_id", nullable = false)
     private Food food;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="member_id", nullable = false)
     private Member member;
 }

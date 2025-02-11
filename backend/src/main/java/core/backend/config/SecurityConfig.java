@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
 
 // Spring Security 설정 클래스
 @Configuration
@@ -22,7 +23,7 @@ public class SecurityConfig {
     
     private final MemberDetailService memberDetailService;
     private final JwtFilter jwtFilter;
-    
+
     // Spring Security 설정(보안 필터 체인 구성)
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll() //로그인, 회원가입은 인증 없이 접근 가능
                         .requestMatchers("/api/food/upload").permitAll() // 파일 업로드는 인증 없이 접근 가능
                         .requestMatchers("/api/user/me").authenticated() //인증된 사용자만 접근 가능
+                        .requestMatchers("reviews/users/**").permitAll() // 리뷰 조회는 인증 없이 접근 가능
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .exceptionHandling(exception -> exception
