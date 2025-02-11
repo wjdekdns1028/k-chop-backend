@@ -39,7 +39,7 @@ public class ReviewController {
     public ResponseEntity<?> addReview(@Valid @RequestBody ReviewFormRequest request) {
 
         Member member = memberService.getUser(request.getUserId());
-        Food food = foodService.getFoodDetail(request.getFoodId());
+        Food food = foodService.findFoodByID(request.getFoodId());
         reviewService.createReview(food, member, request.getContent());
 
         int reviewCount = reviewService.getReviewsByUser(member.getId()).size();

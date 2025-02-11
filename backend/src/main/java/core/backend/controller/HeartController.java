@@ -38,7 +38,7 @@ public class HeartController {
 
     @GetMapping("/heart/{foodId}")
     public int getSizeOfHearts(@PathVariable("foodId") Long foodId){
-        Food food = foodService.getFoodDetail(foodId);
+        Food food = foodService.findFoodByID(foodId);
         return heartService.getHeartsByFood(food).size();
     }
 
@@ -59,7 +59,7 @@ public class HeartController {
     @PostMapping("/users/heart")
     public ResponseEntity<?> likeFoodByUser(@Valid @RequestBody MemberLikeFoodRequest request) {
         // TODO : 데이터가 잘 안들어왔을 때 Valid에서 어떻게 에러 메시지 출력하나?
-        Food food = foodService.getFoodDetail(request.getFoodId());
+        Food food = foodService.findFoodByID(request.getFoodId());
         Member member = memberService.getUser(request.getUserId());
 
         if (heartService.isLiked(member, food)){
@@ -73,7 +73,7 @@ public class HeartController {
     @Transactional // TODO : 리뷰 삭제할 때는 안 써도 삭제가 됐었는데 ?
     @DeleteMapping("/users/heart")
     public ResponseEntity<?> unlikeFoodByUser(@Valid @RequestBody MemberLikeFoodRequest request) {
-        Food food = foodService.getFoodDetail(request.getFoodId());
+        Food food = foodService.findFoodByID(request.getFoodId());
         Member member = memberService.getUser(request.getUserId());
 
         if (!heartService.isLiked(member, food)){

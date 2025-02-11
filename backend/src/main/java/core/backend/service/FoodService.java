@@ -1,9 +1,13 @@
 package core.backend.service;
 
 import core.backend.domain.Food;
+import core.backend.domain.Review;
+import core.backend.dto.FoodDetailDto;
+import core.backend.dto.review.ReviewDto;
 import core.backend.exception.CustomException;
 import core.backend.exception.ErrorCode;
 import core.backend.repository.FoodRepository;
+import core.backend.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,80 @@ import java.util.stream.Collectors;
 public class FoodService {
 
     private final FoodRepository foodRepository;
+    private final ReviewRepository reviewRepository;
+
+    private static final int TABASCO_SCOVILLE = 3750; //타바스코 평균 스코빌
+
+    //특정 음식 엔티티 조회
+    public Food findFoodByID(Long foodId){
+        return foodRepository.findById(foodId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOOD_NOT_FOUND));
+    }
+
+    //특정 음식 상세 조회(매운맛 비교 포함)
+    public FoodDetailDto getFoodDetail(Long foodId) {
+        Food food = foodRepository.findById(foodId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FOOD_NOT_FOUND));
+
+        //음식 리뷰 가져오기
+        List<Review> reviews = reviewRepository.findByFood(food);
+        List<ReviewDto> reviewDtos = reviews.stream()
+                .map(ReviewDto::fromEntity)
+                .collect(Collectors.toList());
+
+        //평균 매운맛 계산(후기 기반)
+        double avgSpicyLevel = reviews.stream()
+                .mapToInt(Review::getSpicyLevel) // 1~5단계 점수 가져옴
+                .average()
+                .orElse(0);
+
+        String spicyLevelText = classifySpicyLevel(avgSpicyLevel);
+
+        //타바스코 소스와 비교
+        String spicinessComparison = compareSpiciness(food.getScoville());
+
+        //가장 인기 있는 음식(좋아요 순 정렬 후 2개 가져오기)
+        List<Food> popularFoods = foodRepository.findAll().stream()
+                .sorted(Comparator.comparingInt(Food::getHeartCount).reversed()) //좋아요 순 정렬
+                .limit(2)
+                .collect(Collectors.toList());
+
+        return new FoodDetailDto(
+                food.getImgUrl(),
+                food.getName(),
+                food.getDescription(),
+                spicyLevelText, // 후기 기반 매운맛
+                spicinessComparison, // 타바스코와 비교 매운맛
+                reviewDtos, // 리뷰 리스트
+                popularFoods // 인기 음식 리스트
+        );
+    }
+    
+    //사용자 후기 기반 평균 매운맛 계산
+    private String classifySpicyLevel(double avgSpicyLevel){
+        if(avgSpicyLevel >= 4){
+            return "매움";
+        } else if (avgSpicyLevel >= 2) {
+            return "보통";
+        } else {
+            return "안 매움";
+        }
+    }
+
+    //타바스코 소스와 비교한 매운맛 계산 compareScovilleWithTabasco
+    private String compareSpiciness(Integer scoville){
+        if(scoville == null) {
+            return "매운맛 정보 없음";
+        } else if (scoville > TABASCO_SCOVILLE*1.5) {
+            return"타바스코 소스 보다 완전 매운 편";
+        } else if (scoville > TABASCO_SCOVILLE*0.8){
+            return "타바스코 소스 보다 조금 더 매운 편";
+        } else if (scoville < TABASCO_SCOVILLE*0.5){
+            return "타바스코 소스 보다 안 매운 편";
+        } else {
+            return "타바스코 소스와 비슷한 편";
+        }
+    }
 
     //csv데이터를 읽고 db에 저장
     public void saveFoodsFromCsv(MultipartFile file){
@@ -86,26 +164,18 @@ public class FoodService {
         }
     }
 
-    //특정 음식 상세 조회
-    public Food getFoodDetail(Long foodId) {
-        return foodRepository.findById(foodId)
-                .orElseThrow(() -> new CustomException(ErrorCode.FOOD_NOT_FOUND));
-    }
-
     //카테고리별 음식 리스트 조회, 정렬 기능(최신, 인기순)
     public List<Food> getFoods(String category, String sort){
         List<Food> foods = (category != null) ? foodRepository.findByCategory(category) : foodRepository.findAll();
 
-       //좋아요 기능 개발 전이라 기본 정렬을 최신순으로 설정
-        foods.sort(Comparator.comparing(Food::getId).reversed());
-
-        // 좋아요 기능 개발 후에 적용할 코드 (현재는 주석 처리)
-//        if ("popular".equalsIgnoreCase(sort)) {
-//            foods.sort(Comparator.comparingInt(food -> food.getHearts().size()));
-//            Collections.reverse(foods); // 내림차순 정렬 (좋아요 개수 기준)
-//        } else {
-//            foods.sort(Comparator.comparing(Food::getId).reversed()); // 최신순 정렬 (ID 기준 내림차순)
-//        }
+        // 정렬 기준 적용(기본값: 인기순)
+        if (sort == null || "popular".equalsIgnoreCase(sort)){
+            //좋아요 개수를 기준으로 내림차순 정렬
+            foods.sort(Comparator.comparingInt(Food::getHeartCount).reversed());
+        } else {
+            // 최신순 정렬 (ID 기준 내림차순)
+            foods.sort(Comparator.comparing(Food::getId).reversed());
+        }
 
         return foods;
     }
@@ -114,4 +184,5 @@ public class FoodService {
     public List<Food> searchFoods(String query){
         return foodRepository.findByNameContainingIgnoreCaseOrCategoryContainingIgnoreCase(query, query);
     }
+
 }

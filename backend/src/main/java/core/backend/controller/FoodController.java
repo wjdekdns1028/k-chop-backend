@@ -1,6 +1,7 @@
 package core.backend.controller;
 
 import core.backend.domain.Food;
+import core.backend.dto.FoodDetailDto;
 import core.backend.service.FoodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +41,9 @@ public class FoodController {
         return ResponseEntity.ok(searchResults);
     }
 
-    //음식 상세 조회
+    //음식 상세 조회(매운맛 비교 포함)
     @GetMapping("/{foodId}")
-    public ResponseEntity<Food> getFoodDetail(@PathVariable("foodId") Long foodId){
-        Food food = foodService.getFoodDetail(foodId);
-        return ResponseEntity.ok(food);
+    public ResponseEntity<FoodDetailDto> getFoodDetail(@PathVariable("foodId") Long foodId){
+        return ResponseEntity.ok(foodService.getFoodDetail(foodId));
     }
 }
