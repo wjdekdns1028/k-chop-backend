@@ -1,17 +1,14 @@
 package core.backend.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
 import core.backend.domain.Review;
-import core.backend.dto.review.ReviewDto;
 import core.backend.exception.CustomException;
 import core.backend.exception.ErrorCode;
 import core.backend.repository.ReviewRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,12 +20,12 @@ public class ReviewService {
         return reviewRepository.findAll();
     }
 
-    public Review getReviewByReviewId(Long reviewId) {
+    public Review getReviewByReview(Long reviewId) {
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
-    public List<Review> getReviewsByUserId(Long userId) {
+    public List<Review> getReviewsByUser(Long userId) {
         return reviewRepository.findAllByMemberId(userId);
     }
 
@@ -51,6 +48,7 @@ public class ReviewService {
                 }).orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
     }
 
+    @Transactional
     public void deleteReview(Long reviewId) {
         if (reviewRepository.findById(reviewId).isPresent())
             reviewRepository.deleteById(reviewId);

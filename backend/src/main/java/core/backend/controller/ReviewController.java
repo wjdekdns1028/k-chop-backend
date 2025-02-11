@@ -1,12 +1,10 @@
 package core.backend.controller;
 
 import java.net.URI;
-import java.security.Principal;
 import java.util.*;
 import core.backend.domain.Food;
 import core.backend.domain.Member;
 import core.backend.domain.Review;
-import core.backend.dto.review.ReviewDto;
 import core.backend.dto.review.ReviewFormRequest;
 import core.backend.dto.review.ReviewUpdateRequest;
 import core.backend.service.FoodService;
@@ -15,11 +13,8 @@ import core.backend.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +32,7 @@ public class ReviewController {
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getReviews(@PathVariable("userId") Long userId) {
-        return ResponseEntity.ok().body(reviewService.getReviewsByUserId(userId));
+        return ResponseEntity.ok().body(reviewService.getReviewsByUser(userId));
     }
 
     @PostMapping
@@ -47,7 +42,7 @@ public class ReviewController {
         Food food = foodService.getFoodDetail(request.getFoodId());
         reviewService.createReview(food, member, request.getContent());
 
-        int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
+        int reviewCount = reviewService.getReviewsByUser(member.getId()).size();
         memberService.updateBadge(member, reviewCount);
 
         return ResponseEntity.created(URI.create("/reviews/users/" + member.getId()))
@@ -57,7 +52,7 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     public ResponseEntity<?> updateReview(@PathVariable Long reviewId,
                                             @Valid @RequestBody ReviewUpdateRequest request) {
-        Review review = reviewService.getReviewByReviewId(reviewId);
+        Review review = reviewService.getReviewByReview(reviewId);
         reviewService.updateReview(reviewId, request.getContent());
 
         return ResponseEntity.ok().body(Map.of("message","후기 수정 완료"));
@@ -65,11 +60,11 @@ public class ReviewController {
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
-        Review review = reviewService.getReviewByReviewId(reviewId);
+        Review review = reviewService.getReviewByReview(reviewId);
         Member member = review.getMember();
         reviewService.deleteReview(reviewId);
 
-        int reviewCount = reviewService.getReviewsByUserId(member.getId()).size();
+        int reviewCount = reviewService.getReviewsByUser(member.getId()).size();
         memberService.updateBadge(member, reviewCount);
 
         return ResponseEntity.ok().body(Map.of("message","후기 삭제 완료"));
