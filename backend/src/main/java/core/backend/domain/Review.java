@@ -25,6 +25,8 @@ public class Review {
     @JoinColumn(name="member_id", nullable = false)
     private Member member;
 
+    @Lob // 긴 문자열을 저장할 때 사용
+    @Column(columnDefinition = "TEXt", nullable = false)
     private String content;
 
     private Integer rating;
@@ -39,4 +41,8 @@ public class Review {
     private Integer upvote;
 
     private Integer downvote;
+
+    
+    @Column(nullable = false)
+    private int spicyLevel; // 1~5단계 매운맛 평가
 }

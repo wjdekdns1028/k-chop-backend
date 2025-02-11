@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -36,4 +39,13 @@ public class Food {
 
     @Column(nullable = false)
     private String imgUrl;
+
+    //좋아요 리스트(Hearts와 연결)
+    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Heart> hearts = new ArrayList<>(); // 좋아요 개수 정보
+
+    //좋아요 개수를 반환
+    public int getHeartCount(){
+        return hearts != null ? hearts.size() : 0;
+    }
 }
