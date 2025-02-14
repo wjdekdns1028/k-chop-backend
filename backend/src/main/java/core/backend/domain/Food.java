@@ -1,5 +1,6 @@
 package core.backend.domain;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
@@ -14,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString
+@JsonIgnoreProperties({"hibernateLAzyInitializer", "handler", "reviews"}) // hibernate프록시 무시
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")//ID기반 직렬화
 public class Food {
 
     @Id
@@ -40,9 +43,14 @@ public class Food {
     @Column(nullable = false)
     private String imgUrl;
 
+    @JsonManagedReference // 무한 루프 방지
+    @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>(); // 리뷰 리스트
+
     //좋아요 리스트(Hearts와 연결)
     @OneToMany(mappedBy = "food", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Heart> hearts = new ArrayList<>(); // 좋아요 개수 정보
+    
 
     //좋아요 개수를 반환
     public int getHeartCount(){
