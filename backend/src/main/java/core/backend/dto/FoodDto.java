@@ -13,10 +13,13 @@ import lombok.Setter;
 public class FoodDto {
     private Long foodId;
     private String name;
-    public static FoodDto toDTO(Food food) {
+    private String imgUrl;
+
+    public static FoodDto fromEntity(Food food) {
         return FoodDto.builder()
                 .foodId(food.getId())
                 .name(food.getName())
+                .imgUrl(food.getImgUrl())
                 .build();
     }
 }

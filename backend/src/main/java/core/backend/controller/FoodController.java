@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/food")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*") // 외부 클라이언트에서도 접근 가능
 public class FoodController {
 
     private final FoodService foodService;
@@ -42,7 +43,7 @@ public class FoodController {
     }
 
     //음식 상세 조회(매운맛 비교 포함)
-    @GetMapping("/{foodId}")
+    @GetMapping("/detail/{foodId}")
     public ResponseEntity<FoodDetailDto> getFoodDetail(@PathVariable("foodId") Long foodId){
         return ResponseEntity.ok(foodService.getFoodDetail(foodId));
     }

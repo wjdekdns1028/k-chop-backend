@@ -7,9 +7,12 @@ import core.backend.domain.Member;
 import core.backend.domain.Review;
 import core.backend.dto.review.ReviewFormRequest;
 import core.backend.dto.review.ReviewUpdateRequest;
+import core.backend.exception.CustomException;
+import core.backend.exception.ErrorCode;
 import core.backend.service.FoodService;
 import core.backend.service.MemberService;
 import core.backend.service.ReviewService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,10 +40,18 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<?> addReview(@Valid @RequestBody ReviewFormRequest request) {
-
+        request.validate(); //요청데이터 확인
+        
         Member member = memberService.getUser(request.getUserId());
         Food food = foodService.findFoodByID(request.getFoodId());
-        reviewService.createReview(food, member, request.getContent());
+
+        //food가 정상적으로 조회되지 않으면 예외
+        if(food == null){
+            log.error("음식 조회 실패: foodID={}", request.getFoodId());
+            throw new CustomException(ErrorCode.FOOD_NOT_FOUND);
+        }
+
+        reviewService.createReview(food, member, request.getContent(), request.getSpicyLevel());
 
         int reviewCount = reviewService.getReviewsByUser(member.getId()).size();
         memberService.updateBadge(member, reviewCount);
@@ -50,23 +61,28 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<?> updateReview(@PathVariable Long reviewId,
+    public ResponseEntity<?> updateReview(@PathVariable("reviewId") Long reviewId,
                                             @Valid @RequestBody ReviewUpdateRequest request) {
         Review review = reviewService.getReviewByReview(reviewId);
-        reviewService.updateReview(reviewId, request.getContent());
+        reviewService.updateReview(reviewId, request.getContent(), request.getSpicyLevel());
 
         return ResponseEntity.ok().body(Map.of("message","후기 수정 완료"));
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> deleteReview(@PathVariable Long reviewId) {
+    public ResponseEntity<?> deleteReview(@PathVariable("reviewId") Long reviewId) {
+        //리뷰 삭제 실행
         Review review = reviewService.getReviewByReview(reviewId);
         Member member = review.getMember();
         reviewService.deleteReview(reviewId);
-
+        //전체 리뷰 리스트 갱신
+        List<Review> allReviews = reviewService.getReviews();
+        //사용자의 리뷰 갱신
         int reviewCount = reviewService.getReviewsByUser(member.getId()).size();
         memberService.updateBadge(member, reviewCount);
 
-        return ResponseEntity.ok().body(Map.of("message","후기 삭제 완료"));
+        return ResponseEntity.ok().body(Map.of(
+                "message","후기 삭제 완료",
+                "allReviews", allReviews));
     }
 }

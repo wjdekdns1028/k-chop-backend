@@ -1,6 +1,8 @@
 package core.backend.domain;
 
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,18 +14,22 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLAzyInitializer", "handler"}) // hibernate프록시 무시
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Review {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="review_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER) // 지연 로딩 설정
     @JoinColumn(name="food_id", nullable = false)
-    private Food food;
+    @JsonBackReference //자식 관계 review->food
+    private Food food; //food와 연관관계
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER) // 지연 로딩 설정
     @JoinColumn(name="member_id", nullable = false)
-    private Member member;
+    @JsonIgnoreProperties({"reviews"})
+    private Member member; //member와 연관관계
 
     @Lob // 긴 문자열을 저장할 때 사용
     @Column(columnDefinition = "TEXt", nullable = false)
@@ -44,5 +50,5 @@ public class Review {
 
     
     @Column(nullable = false)
-    private int spicyLevel; // 1~5단계 매운맛 평가
+    private Integer spicyLevel; // 1~5단계 매운맛 평가
 }

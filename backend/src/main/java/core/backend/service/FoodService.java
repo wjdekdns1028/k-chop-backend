@@ -3,6 +3,7 @@ package core.backend.service;
 import core.backend.domain.Food;
 import core.backend.domain.Review;
 import core.backend.dto.FoodDetailDto;
+import core.backend.dto.FoodDto;
 import core.backend.dto.review.ReviewDto;
 import core.backend.exception.CustomException;
 import core.backend.exception.ErrorCode;
@@ -30,12 +31,14 @@ public class FoodService {
     private static final int TABASCO_SCOVILLE = 3750; //타바스코 평균 스코빌
 
     //특정 음식 엔티티 조회
+    @Transactional
     public Food findFoodByID(Long foodId){
         return foodRepository.findById(foodId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FOOD_NOT_FOUND));
     }
 
     //특정 음식 상세 조회(매운맛 비교 포함)
+    @Transactional
     public FoodDetailDto getFoodDetail(Long foodId) {
         Food food = foodRepository.findById(foodId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FOOD_NOT_FOUND));
@@ -58,9 +61,10 @@ public class FoodService {
         String spicinessComparison = compareSpiciness(food.getScoville());
 
         //가장 인기 있는 음식(좋아요 순 정렬 후 2개 가져오기)
-        List<Food> popularFoods = foodRepository.findAll().stream()
+        List<FoodDto> popularFoods = foodRepository.findAll().stream()
                 .sorted(Comparator.comparingInt(Food::getHeartCount).reversed()) //좋아요 순 정렬
                 .limit(2)
+                .map(FoodDto::fromEntity)
                 .collect(Collectors.toList());
 
         return new FoodDetailDto(

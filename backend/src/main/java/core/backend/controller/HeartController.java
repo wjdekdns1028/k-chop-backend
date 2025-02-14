@@ -33,7 +33,7 @@ public class HeartController {
         Member member = memberService.getUser(userId);
         List<Heart> hearts = heartService.getHeartsByUser(member);
         List<Food> foods = hearts.stream().map(Heart::getFood).toList();
-        return foods.stream().map(FoodDto::toDTO).toList();
+        return foods.stream().map(FoodDto::fromEntity).toList();
     }
 
     @GetMapping("/heart/{foodId}")
@@ -58,6 +58,7 @@ public class HeartController {
 
     @PostMapping("/users/heart")
     public ResponseEntity<?> likeFoodByUser(@Valid @RequestBody MemberLikeFoodRequest request) {
+        request.validate(); // 요청데이터 검증하려고 추가..
         // TODO : 데이터가 잘 안들어왔을 때 Valid에서 어떻게 에러 메시지 출력하나?
         Food food = foodService.findFoodByID(request.getFoodId());
         Member member = memberService.getUser(request.getUserId());
@@ -73,6 +74,7 @@ public class HeartController {
     @Transactional // TODO : 리뷰 삭제할 때는 안 써도 삭제가 됐었는데 ?
     @DeleteMapping("/users/heart")
     public ResponseEntity<?> unlikeFoodByUser(@Valid @RequestBody MemberLikeFoodRequest request) {
+        request.validate(); // 요청데이터 검증하려고 추가..
         Food food = foodService.findFoodByID(request.getFoodId());
         Member member = memberService.getUser(request.getUserId());
 
