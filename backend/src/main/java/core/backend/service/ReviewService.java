@@ -89,7 +89,7 @@ public class ReviewService {
         //삭제 전에 리뷰 존재 여부 확인
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> {
-                    System.out.println("리뷰 찾을 수 없음: review_id=" + reviewId);
+                    log.info("리뷰 찾을 수 없음: review_id={}", reviewId);
                     return new CustomException(ErrorCode.REVIEW_NOT_FOUND);
                 });
         review.setFood(null);
@@ -104,8 +104,12 @@ public class ReviewService {
         if (deletedReview.isPresent()) {
             throw new RuntimeException("DELETE 실패: review_id=" + reviewId);
         } else {
-            System.out.println("DELETE 성공: review_id=" + reviewId);
+            log.info("DELETE 성공: review_id={}", reviewId);
         }
+    }
+
+    public Review saveReview(Review review) {
+        return reviewRepository.save(review);
     }
 }
 

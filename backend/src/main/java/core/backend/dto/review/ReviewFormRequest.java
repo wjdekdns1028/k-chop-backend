@@ -1,7 +1,6 @@
 package core.backend.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,5 +32,6 @@ public class ReviewFormRequest {
     public void validate(){
         log.info("DTO검증: userId={}, foodId={}, content={}, spicyLevel={}",
                 userId, foodId, content, spicyLevel);
+        log.info("{foodId}");
     }
 }

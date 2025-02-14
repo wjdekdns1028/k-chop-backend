@@ -56,7 +56,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // authorization헤더가 없거나 bearer가 없으면 필터 통과
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
-//            System.out.println("JWT 토큰이 없음 또는 잘못된 형식");
             logger.info("JWT 토큰이 없음 또는 잘못된 형식 " + request.getRequestURL());
             chain.doFilter(request, response);
             return;
@@ -79,10 +78,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
             //securitycontext에 인증 정보 저장!!
             SecurityContextHolder.getContext().setAuthentication(authentication);
-//            System.out.println("JWT 인증 성공: " + email);
             logger.info("JWT 인증 성공: " + email);
         } else {
-//            System.out.println("JWT 토큰 검증 실패");
             logger.info("JWT 토큰 검증 실패");
         }
         chain.doFilter(request, response);
