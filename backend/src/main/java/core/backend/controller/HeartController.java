@@ -37,9 +37,10 @@ public class HeartController {
     }
 
     @GetMapping("/heart/{foodId}")
-    public int getSizeOfHearts(@PathVariable("foodId") Long foodId){
+    public ResponseEntity<?> getSizeOfHearts(@PathVariable("foodId") Long foodId){
         Food food = foodService.findFoodByID(foodId);
-        return heartService.getHeartsByFood(food).size();
+        int size = heartService.getHeartsByFood(food).size();
+        return ResponseEntity.ok(Map.of("heartCount", String.valueOf(size)));
     }
 
 
@@ -47,12 +48,11 @@ public class HeartController {
     public Map<String, String> getBadge(@PathVariable("userId") Long userId) {
         Member member = memberService.getUser(userId);
         Map<String, String> badgeInfo = new HashMap<>();
-//        badgeInfo.put("badgeId", member.getBadge()); // TODO
         badgeInfo.put("badgeLevel", member.getBadge().getLevel());
         badgeInfo.put("userId", member.getId().toString());
         badgeInfo.put("userName", member.getName());
         badgeInfo.put("badgeName", member.getBadge().getLabel());
-        badgeInfo.put("icon_url", "");
+        badgeInfo.put("icon_url", ""); // TODO : 뱃지 경로
         return badgeInfo;
     }
 
@@ -68,7 +68,7 @@ public class HeartController {
         }
 
         heartService.addUser(member, food);
-        return ResponseEntity.ok().body(Map.of("message","좋아요를 눌렀습니다."));
+        return ResponseEntity.ok().body(Map.of("message","좋아요 추가 완료"));
     }
 
     @Transactional // TODO : 리뷰 삭제할 때는 안 써도 삭제가 됐었는데 ?
@@ -83,6 +83,6 @@ public class HeartController {
         }
 
         heartService.deleteUser(member, food);
-        return ResponseEntity.ok().body(Map.of("message","좋아요를 취소했습니다."));
+        return ResponseEntity.ok().body(Map.of("message","좋아요 취소 완료"));
     }
 }

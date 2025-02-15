@@ -11,6 +11,7 @@ import core.backend.repository.FoodRepository;
 import core.backend.repository.ReviewRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class FoodService {
 
     private final FoodRepository foodRepository;
@@ -117,7 +119,7 @@ public class FoodService {
                         String[] data = line.split(",");
 
                         if(data.length < 6 || data[1].trim().isEmpty()){
-                            System.out.println("잘못된 데이터 건너뜀: " + Arrays.toString(data));
+                            log.info("잘못된 데이터 건너뜀: " + Arrays.toString(data));
                             return null;
                         }
 
@@ -125,7 +127,7 @@ public class FoodService {
                         Optional<Food> existingFood = foodRepository.findByName(name);
                         
                         if(existingFood.isPresent()){
-                            System.out.println("이미 존재하는 음식 건너뜀: " + name);
+                            log.info("이미 존재하는 음식 건너뜀: " + name);
                             return null;
                         }
 
@@ -136,7 +138,7 @@ public class FoodService {
                                 scoville = Integer.parseInt(data[3].trim());
                             }
                         }catch (NumberFormatException e){
-                            System.out.println("잘못된 scoville 값: " + data[3].trim());
+                            log.info("잘못된 scoville 값: " + data[3].trim());
                         }
 
                         //Food 객체 생성
@@ -149,7 +151,7 @@ public class FoodService {
                                 .description(data[5].trim())
                                 .build();
 
-                        System.out.println("저장할 데이터: " + food); // 디버깅 로그 추가
+                        log.info("저장할 데이터: " + food); // 디버깅 로그 추가
                         return food;
 
                     })
@@ -159,9 +161,9 @@ public class FoodService {
             //데이터 저장
             if(!foodList.isEmpty()) {
                 foodRepository.saveAll(foodList);
-                System.out.println("총 저장된 데이터 개수: " + foodList.size()); // 몇 개 저장됐는지 확인
+                log.info("총 저장된 데이터 개수: " + foodList.size()); // 몇 개 저장됐는지 확인
                 }else {
-                System.out.println("저장할 데이터가 없습니다.");
+                log.info("저장할 데이터가 없습니다.");
                 }
             } catch (Exception e){
                 throw new RuntimeException("CSV 파일을 읽는 중 오류 발생", e);
