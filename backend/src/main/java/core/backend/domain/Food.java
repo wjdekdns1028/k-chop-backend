@@ -35,6 +35,7 @@ public class Food {
     private String description;
 
     @Min(0)
+    @Column(nullable = false)
     private Integer scoville;
 
     @Column(nullable = false)
